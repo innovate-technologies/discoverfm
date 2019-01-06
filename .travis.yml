@@ -1,6 +1,9 @@
 language: node_js
 node_js:
   - "10"
+env:
+    global:
+      - DOCKER_REPO=innovate/discoverfm
 stages:
 - name: test
 - name: staging
@@ -16,3 +19,23 @@ jobs:
   - stage: test
     language: node_js
     node_js: "10"
+    script:
+      - echo ok
+  - stage: release
+    name: "Release"
+    script: curl -sL https://git.io/goreleaser | bash
+  - stage: staging
+    name: "Release to staging"
+    script:
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - docker build -t $DOCKER_REPO:$TRAVIS_COMMIT ./
+      - docker push $DOCKER_REPO:$TRAVIS_COMMIT
+      - HELM_VERSION=v2.9.1 B64_CA_CRT=$B64_CA_CRT SERVICE_ACCOUNT_TOKEN=$SERVICE_ACCOUNT_TOKEN CLUSTER_ENDPOINT=$CLUSTER_ENDPOINT HELM_RELEASE=disoverfm-staging HELM_CHART="./chart" K8S_NAMESPACE=disoverfm HELM_ARGS="-f .helm-values-prod.yaml--set image.tag=$TRAVIS_COMMIT" make deploy
+  - stage: release
+    name: "Release to production"
+    script:
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - docker build -t $DOCKER_REPO:$TRAVIS_TAG ./
+      - docker push $DOCKER_REPO:$TRAVIS_TAG
+      - docker tag $DOCKER_REPO:$TRAVIS_TAG $DOCKER_REPO:latest; docker push $DOCKER_REPO:latest;
+      - HELM_VERSION=v2.9.1 B64_CA_CRT=$B64_CA_CRT SERVICE_ACCOUNT_TOKEN=$SERVICE_ACCOUNT_TOKEN CLUSTER_ENDPOINT=$CLUSTER_ENDPOINT HELM_RELEASE=disoverfm HELM_CHART="./chart" K8S_NAMESPACE=disoverfm HELM_ARGS="-f .helm-values-prod.yaml--set image.tag=$TRAVIS_TAG" make deploy

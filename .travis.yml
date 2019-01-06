@@ -21,9 +21,6 @@ jobs:
     node_js: "10"
     script:
       - echo ok
-  - stage: release
-    name: "Release"
-    script: curl -sL https://git.io/goreleaser | bash
   - stage: staging
     name: "Release to staging"
     script:

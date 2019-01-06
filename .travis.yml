@@ -27,7 +27,7 @@ jobs:
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - docker build -t $DOCKER_REPO:$TRAVIS_COMMIT ./
       - docker push $DOCKER_REPO:$TRAVIS_COMMIT
-      - HELM_VERSION=v2.9.1 B64_CA_CRT=$B64_CA_CRT SERVICE_ACCOUNT_TOKEN=$SERVICE_ACCOUNT_TOKEN CLUSTER_ENDPOINT=$CLUSTER_ENDPOINT HELM_RELEASE=disoverfm-staging HELM_CHART="./chart" K8S_NAMESPACE=disoverfm HELM_ARGS="-f .helm-values-staging.yaml --set image.tag=$TRAVIS_COMMIT" make deploy
+      - HELM_VERSION=v2.9.1 B64_CA_CRT=$B64_CA_CRT SERVICE_ACCOUNT_TOKEN=$SERVICE_ACCOUNT_TOKEN CLUSTER_ENDPOINT=$CLUSTER_ENDPOINT HELM_RELEASE=discoverfm-staging HELM_CHART="./chart" K8S_NAMESPACE=discoverfm HELM_ARGS="-f .helm-values-staging.yaml --set image.tag=$TRAVIS_COMMIT" make deploy
   - stage: production
     name: "Release to production"
     script:
@@ -35,4 +35,4 @@ jobs:
       - docker build -t $DOCKER_REPO:$TRAVIS_TAG ./
       - docker push $DOCKER_REPO:$TRAVIS_TAG
       - docker tag $DOCKER_REPO:$TRAVIS_TAG $DOCKER_REPO:latest; docker push $DOCKER_REPO:latest;
-      - HELM_VERSION=v2.9.1 B64_CA_CRT=$B64_CA_CRT SERVICE_ACCOUNT_TOKEN=$SERVICE_ACCOUNT_TOKEN CLUSTER_ENDPOINT=$CLUSTER_ENDPOINT HELM_RELEASE=disoverfm HELM_CHART="./chart" K8S_NAMESPACE=disoverfm HELM_ARGS="-f .helm-values-prod.yaml --set image.tag=$TRAVIS_TAG" make deploy
+      - HELM_VERSION=v2.9.1 B64_CA_CRT=$B64_CA_CRT SERVICE_ACCOUNT_TOKEN=$SERVICE_ACCOUNT_TOKEN CLUSTER_ENDPOINT=$CLUSTER_ENDPOINT HELM_RELEASE=discoverfm HELM_CHART="./chart" K8S_NAMESPACE=discoverfm HELM_ARGS="-f .helm-values-prod.yaml --set image.tag=$TRAVIS_TAG" make deploy
